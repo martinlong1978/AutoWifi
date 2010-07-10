@@ -17,7 +17,7 @@
 			</intent-filter>
 			<intent-filter>
 				<action android:name="android.net.wifi.STATE_CHANGE" />
-			</intent-filter>
+			</intent-filter> 
 		</service>
 		<activity android:name="LocationActivity">
 			<intent-filter>
