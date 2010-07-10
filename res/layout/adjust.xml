@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	android:orientation="vertical">
+	<TextView android:id="@+id/TextView08" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:textSize="25sp"
+		android:gravity="center_horizontal" android:textColor="#FFF"
+		android:text="Location Details"></TextView>
+	<TableLayout android:id="@+id/TableLayout01"
+		android:layout_width="fill_parent"
+		android:orientation="vertical" android:stretchColumns="1"
+		android:paddingTop="20sp" android:paddingBottom="10dip"
+		android:paddingLeft="10dip" android:paddingRight="10dip" android:layout_height="wrap_content">
+		<TableRow android:id="@+id/TableRow04" android:layout_width="fill_parent"
+			android:layout_height="fill_parent">
+			<TextView android:text="SSID" android:id="@+id/TextView07"
+				android:paddingRight="10dip" android:paddingBottom="10dip"
+				android:layout_width="fill_parent" android:layout_height="fill_parent"
+				android:textStyle="bold"></TextView>
+			<TextView android:text="@+id/TextView02"
+				android:layout_width="fill_parent" android:layout_height="fill_parent"
+				android:id="@+id/ssid"></TextView>
+		</TableRow>
+		<TableRow android:id="@+id/TableRow01" android:layout_width="fill_parent"
+			android:layout_height="fill_parent">
+			<TextView android:text="Latitude" android:id="@+id/TextView01"
+				android:paddingRight="10dip" android:paddingBottom="10dip"
+				android:layout_width="fill_parent" android:layout_height="fill_parent"
+				android:textStyle="bold"></TextView>
+			<TextView android:text="@+id/TextView02"
+				android:layout_width="fill_parent" android:layout_height="fill_parent"
+				android:id="@+id/latitude"></TextView>
+		</TableRow>
+		<TableRow android:id="@+id/TableRow02" android:layout_width="fill_parent"
+			android:layout_height="20dip">
+			<TextView android:text="Longitude" android:id="@+id/TextView03"
+				android:paddingRight="10dip" android:paddingBottom="10dip"
+				android:layout_width="fill_parent" android:layout_height="fill_parent"
+				android:textStyle="bold"></TextView>
+			<TextView android:text="@+id/TextView04"
+				android:layout_width="fill_parent" android:layout_height="fill_parent"
+				android:id="@+id/longitude"></TextView>
+		</TableRow>
+		<TableRow android:id="@+id/TableRow03" android:layout_width="fill_parent"
+			android:layout_height="fill_parent">
+			<TextView android:text="Accuracy(m)" android:id="@+id/TextView05"
+				android:paddingRight="10dip" android:paddingBottom="10dip"
+				android:layout_width="fill_parent" android:layout_height="fill_parent"
+				android:textStyle="bold"></TextView>
+			<TextView android:text="@+id/TextView04"
+				android:layout_width="fill_parent" android:layout_height="fill_parent"
+				android:id="@+id/accuracy"></TextView>
+		</TableRow>
+		<TableRow android:id="@+id/TableRow05" android:layout_width="fill_parent"
+			android:layout_height="fill_parent">
+			<TextView android:text="" android:id="@+id/TextView09"
+				android:paddingRight="10dip" android:paddingBottom="10dip"
+				android:layout_width="fill_parent" android:layout_height="fill_parent"></TextView>
+			<SeekBar android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:id="@+id/accuracyBar"
+				android:max="1000000"></SeekBar>
+		</TableRow>
+
+	</TableLayout>
+	<Button android:id="@+id/Button01"
+		android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:text="Delete this point"></Button>
+
+
+
+
+</LinearLayout>

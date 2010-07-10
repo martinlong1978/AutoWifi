@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	<TextView android:id="@+id/TextView01" android:layout_height="wrap_content"
+		android:layout_width="fill_parent" android:textSize="26sp"
+		android:gravity="center_horizontal" android:textStyle="bold"
+		android:text="Networks"></TextView>
+	<ListView android:id="@+id/ListView01" android:layout_width="wrap_content"
+		android:layout_height="wrap_content"></ListView>
+	<TextView android:id="@+id/TextView02" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:textSize="12sp"
+		android:paddingTop="15dip"
+		android:text="Enable wifi in the normal way. If a connection is established it will be recorded here, along with its location. When you move in and out of range, wifi will be enabled and disabled as appropriate."
+		android:textColor="#F84"></TextView>
+	<TextView android:id="@+id/TextView02" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:textSize="12sp"
+		android:paddingTop="15dip"
+		android:text="Tap a network above to edit the zone(s) in which it is active. Locations are approximate, as GPS is not used, to conserve power."
+		android:textColor="#F84"></TextView>
+</LinearLayout>
