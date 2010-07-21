@@ -161,6 +161,7 @@ public class LocationService extends Service implements LocationListener
     {
         Log.i("WIFI", "OnStart");
         super.onStart(intent, startId);
+        lastKnown = getLocation();
         String connectedTo = intent.getStringExtra("connectedTo");
         Log.i("WIFI", "onStart: " + connectedTo);
         if (connectedTo != null && manualConnection)
