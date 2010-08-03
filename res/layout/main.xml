@@ -18,4 +18,9 @@
 		android:paddingTop="15dip"
 		android:text="Tap a network above to edit the zone(s) in which it is active. Locations are approximate, as GPS is not used, to conserve power."
 		android:textColor="#F84"></TextView>
+	<TextView android:id="@+id/TextView03" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:textSize="12sp"
+		android:paddingTop="15dip"
+		android:text="Please email me if you need support: martin@longhome.co.uk. Click here to compose a new email."
+		android:textColor="#FFF"></TextView>
 </LinearLayout>

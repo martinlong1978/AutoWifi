@@ -21,16 +21,20 @@ import android.util.Log;
 public class LocationService extends Service implements LocationListener
 {
 
-    boolean        manualConnection = true;
+    boolean                  manualConnection = true;
 
-    List<Location> locations        = new ArrayList<Location>();
+    List<MyLocation>         locations        = new ArrayList<MyLocation>();
 
-    DBHelper       helper;
-    Location       lastKnown;
-    Location       netLocation;
+    DBHelper                 helper;
+    Location                 lastKnown;
+    Location                 netLocation;
 
     // Allow some attempts before disconnecting
-    int            scancount        = 0;
+    long                     scantime         = 0;
+
+    public static final long SCANTIME         = 1000 * 60 * 5;              // 5
+
+    // mins
 
     @Override
     public void onCreate()
@@ -80,7 +84,7 @@ public class LocationService extends Service implements LocationListener
             // is wifi still connected
             if (connectionInfo.getSupplicantState() == SupplicantState.COMPLETED)
             {
-                scancount = 0;
+                scantime = 0;
                 if (netLocation != null
                         && netLocation.getAccuracy() > lastKnown.getAccuracy())
                 {
@@ -95,9 +99,13 @@ public class LocationService extends Service implements LocationListener
             else if (connectionInfo.getSupplicantState() == SupplicantState.DISCONNECTED
                     || connectionInfo.getSupplicantState() == SupplicantState.SCANNING)
             {
-                if (!isInvicinity(location) && scancount++ < 4)
+                if (scantime == 0)
                 {
-                    scancount = 0;
+                    scantime = System.currentTimeMillis() + SCANTIME;
+                }
+                if (!isInvicinity(location)
+                        && scantime < System.currentTimeMillis())
+                {
                     manualConnection = true;
                     Log.i("WIFI", "Auto Disabling");
                     wifiService.setWifiEnabled(false);
@@ -105,7 +113,7 @@ public class LocationService extends Service implements LocationListener
             }
             else
             {
-                scancount = 0;
+                scantime = 0;
                 // We can get a new location as soon as we connect to the wifi,
                 // so store away the original
                 netLocation = tempLocation;
@@ -113,7 +121,7 @@ public class LocationService extends Service implements LocationListener
         }
         else
         {
-            scancount = 0;
+            scantime = 0;
             if (isInvicinity(location))
             {
                 manualConnection = false;
@@ -174,34 +182,37 @@ public class LocationService extends Service implements LocationListener
 
     private void logLocation(String connectedTo)
     {
-        logLocation(connectedTo, lastKnown);
+        if (lastKnown != null)
+        {
+            logLocation(connectedTo, lastKnown);
+        }
     }
 
-    private void logLocation(String connectedTo, final Location location)
+    private void logLocation(String ssid, final Location location)
     {
         Log.i("WIFI", "Connected to: "
-                + connectedTo
+                + ssid
                 + " at: "
                 + location.getLatitude()
                 + ","
                 + location.getLongitude()
                 + " acc: "
                 + location.getAccuracy());
-        if (isInvicinity(location))
+        if (isInvicinity(location, ssid))
         {
             Log.i("WIFI", "Already logged");
             return;
         }
         if (location != null)
         {
-            locations.add(location);
+            locations.add(new MyLocation(ssid, location));
         }
         Log.i("WIFI", "Locations: " + locations.size());
         SQLiteDatabase db = helper.getWritableDatabase();
         try
         {
             db.execSQL("INSERT INTO location (ssid, point) VALUES (?,?)",
-                    new Object[] { connectedTo, locationToString(location) });
+                    new Object[] { ssid, locationToString(location) });
         }
         finally
         {
@@ -212,9 +223,15 @@ public class LocationService extends Service implements LocationListener
 
     private boolean isInvicinity(Location location)
     {
+        return isInvicinity(location, null);
+    }
+
+    private boolean isInvicinity(Location location, String ssid)
+    {
         Log.i("WIFI", "isInvicinity");
-        for (Location wifiLocation : locations)
+        for (MyLocation myLocation : locations)
         {
+            Location wifiLocation = myLocation.loc;
             float acc = wifiLocation.getAccuracy() + location.getAccuracy();
             Log.i("WIFI", "Compare to: "
                     + wifiLocation.getLatitude()
@@ -226,7 +243,8 @@ public class LocationService extends Service implements LocationListener
                     + wifiLocation.distanceTo(location)
                     + " acc: "
                     + acc);
-            if (wifiLocation.distanceTo(location) < acc)
+            if (wifiLocation.distanceTo(location) < acc
+                    && (ssid == null || ssid.equals(myLocation.ssid)))
             {
                 return true;
             }
@@ -269,7 +287,7 @@ public class LocationService extends Service implements LocationListener
         try
         {
             cur = db.query("location",
-                    new String[] { "point" },
+                    new String[] { "point", "ssid" },
                     null,
                     null,
                     null,
@@ -279,6 +297,7 @@ public class LocationService extends Service implements LocationListener
             {
                 do
                 {
+                    String ssid = cur.getString(cur.getColumnIndex("ssid"));
                     String data = cur.getString(cur.getColumnIndex("point"));
                     Location loc = stringToLocation(data);
                     if (loc != null)
@@ -289,7 +308,7 @@ public class LocationService extends Service implements LocationListener
                                 + loc.getLongitude()
                                 + " acc: "
                                 + loc.getAccuracy());
-                        locations.add(loc);
+                        locations.add(new MyLocation(ssid, loc));
                     }
                 } while (cur.moveToNext());
             }
@@ -306,6 +325,18 @@ public class LocationService extends Service implements LocationListener
             }
         }
 
+    }
+
+    private class MyLocation
+    {
+        public MyLocation(String ssid, Location loc)
+        {
+            this.ssid = ssid;
+            this.loc = loc;
+        }
+
+        String   ssid;
+        Location loc;
     }
 
 }

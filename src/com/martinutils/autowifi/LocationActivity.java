@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.ContextMenu;
@@ -15,17 +16,21 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 
 import com.martinutils.autowifi.LocationService.LocalBinder;
 
-public class LocationActivity extends Activity implements OnItemClickListener
+public class LocationActivity extends Activity implements
+        OnItemClickListener,
+        View.OnClickListener
 {
 
     ListView             lv;
     ArrayAdapter<String> arrayAdapter;
     private DBHelper     helper;
+    TextView             tv;
 
     /** Called when the activity is first created. */
     @Override
@@ -44,6 +49,8 @@ public class LocationActivity extends Activity implements OnItemClickListener
         Intent serviceIntent = new Intent(this, LocationService.class);
         bindService(serviceIntent, serviceConn, BIND_AUTO_CREATE);
         rePopulate();
+        tv = (TextView) findViewById(R.id.TextView03);
+        tv.setOnClickListener(this);
     }
 
     @Override
@@ -155,5 +162,13 @@ public class LocationActivity extends Activity implements OnItemClickListener
             }
         }
         return true;
+    }
+
+    @Override
+    public void onClick(View v)
+    {
+        Intent intent = new Intent(Intent.ACTION_SENDTO,
+                Uri.parse("mailto:martin@longhome.co.uk"));
+        startActivity(intent);
     }
 }
