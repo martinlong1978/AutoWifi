@@ -17,10 +17,11 @@ public class AdjustPointActivity extends Activity implements
         OnClickListener
 {
 
-    DBHelper         helper;
-    private Location loc;
-    private String   id;
-    private TextView accView;
+    DBHelper                   helper;
+    private Location           loc;
+    private String             id;
+    private TextView           accView;
+    public static final double ACC_CONSTANT = 333333;
 
     /** Called when the activity is first created. */
     @Override
@@ -51,7 +52,7 @@ public class AdjustPointActivity extends Activity implements
             latView.setText("" + loc.getLatitude());
             longView.setText("" + loc.getLongitude());
             accView.setText("" + loc.getAccuracy());
-            double acc = (Math.log10(loc.getAccuracy()) - 1) * 430000;
+            double acc = (Math.log10(loc.getAccuracy()) - 1) * ACC_CONSTANT;
             seekBar.setProgress((int) acc);
             seekBar.setOnSeekBarChangeListener(this);
         }
@@ -73,7 +74,7 @@ public class AdjustPointActivity extends Activity implements
             int progress,
             boolean fromUser)
     {
-        acc = (Math.pow(10, ((double) progress / 430000) + 1));
+        acc = (Math.pow(10, ((double) progress / ACC_CONSTANT) + 1));
         accView.setText("" + (int) acc);
     }
 
