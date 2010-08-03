@@ -50,6 +50,13 @@ public class PlotActivity extends MapActivity
     }
 
     @Override
+    protected void onDestroy()
+    {
+        unbindService(serviceConn);
+        super.onDestroy();
+    }
+
+    @Override
     protected void onRestart()
     {
         super.onRestart();
@@ -64,7 +71,7 @@ public class PlotActivity extends MapActivity
                                             @Override
                                             public void onServiceDisconnected(ComponentName name)
                                             {
-
+                                                PlotActivity.this.service = null;
                                             }
 
                                             @Override

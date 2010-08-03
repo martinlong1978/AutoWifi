@@ -1,20 +1,27 @@
 package com.martinutils.autowifi;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
@@ -27,19 +34,42 @@ public class LocationActivity extends Activity implements
         View.OnClickListener
 {
 
-    ListView             lv;
-    ArrayAdapter<String> arrayAdapter;
-    private DBHelper     helper;
-    TextView             tv;
+    private ListView             lv;
+    private ArrayAdapter<String> arrayAdapter;
+    private DBHelper             helper;
+    private TextView             tv;
+    private Button               modeButton;
+    private SharedPreferences    prefs;
+    private WifiMode             mode;
+    private Editor               edit;
 
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        prefs = getSharedPreferences("wifiSettings", MODE_PRIVATE);
+        edit = prefs.edit();
+
+        mode = WifiMode.valueOf(prefs.getString("mode", "AUTO"));
+
         Intent intent = new Intent(this, LocationService.class);
         this.startService(intent);
         this.setContentView(R.layout.main);
+
+        modeButton = (Button) findViewById(R.id.Button01);
+        modeButton.setText(mode.name());
+
+        modeButton.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v)
+            {
+                onModeButtonClick(v);
+
+            }
+        });
         lv = (ListView) this.findViewById(R.id.ListView01);
         arrayAdapter = new ArrayAdapter<String>(this, R.layout.listitem);
         lv.setAdapter(arrayAdapter);
@@ -54,10 +84,36 @@ public class LocationActivity extends Activity implements
     }
 
     @Override
+    protected void onDestroy()
+    {
+        unbindService(serviceConn);
+        super.onDestroy();
+    }
+
+    @Override
     protected void onRestart()
     {
         super.onRestart();
         rePopulate();
+    }
+
+    private void onModeButtonClick(View v)
+    {
+        switch (mode)
+        {
+            case OFF:
+                mode = WifiMode.ON;
+                break;
+            case ON:
+                mode = WifiMode.AUTO;
+                break;
+            case AUTO:
+                mode = WifiMode.OFF;
+        }
+        modeButton.setText(mode.name());
+        edit.putString("mode", mode.name());
+        edit.commit();
+        service.reload();
     }
 
     private void rePopulate()
@@ -96,7 +152,7 @@ public class LocationActivity extends Activity implements
                                             @Override
                                             public void onServiceDisconnected(ComponentName name)
                                             {
-
+                                                LocationActivity.this.service = null;
                                             }
 
                                             @Override
@@ -167,8 +223,55 @@ public class LocationActivity extends Activity implements
     @Override
     public void onClick(View v)
     {
+        sendEmail();
+    }
+
+    private void sendEmail()
+    {
         Intent intent = new Intent(Intent.ACTION_SENDTO,
                 Uri.parse("mailto:martin@longhome.co.uk"));
         startActivity(intent);
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        if (item.getTitle().equals("Help"))
+        {
+            showDialog(0);
+        }
+        if (item.getTitle().equals("Support"))
+        {
+            sendEmail();
+        }
+        return true;
+    }
+
+    @Override
+    protected Dialog onCreateDialog(int id)
+    {
+        Dialog dialog;
+        switch (id)
+        {
+            case 0:
+                dialog = new Dialog(this);
+
+                dialog.setContentView(R.layout.help);
+                dialog.setTitle("Help");
+                dialog.show();
+
+            default:
+                dialog = null;
+        }
+        return dialog;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.wifi_menu, menu);
+        return true;
+    }
+
 }

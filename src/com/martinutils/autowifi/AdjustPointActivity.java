@@ -28,6 +28,7 @@ public class AdjustPointActivity extends Activity implements
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.adjust);
         helper = new DBHelper(this);
         id = "" + this.getIntent().getIntExtra("pointId", 0);

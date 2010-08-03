@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	<TextView android:id="@+id/TextView02" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:textSize="14sp"
+		android:paddingTop="15dip"
+		android:text="Enable wifi in the normal way, or by changing the mode on the main screen to 'ON'. Enabling it using the normal method will keep it enabled for 5 minutes, changing the mode to 'ON' changes it permanently. When a connection is established it will be recorded here, along with its location. When you move in and out of range, wifi will be enabled and disabled as appropriate."
+		android:textColor="#FFF"></TextView>
+	<TextView android:id="@+id/TextView02" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:textSize="14sp"
+		android:paddingTop="15dip"
+		android:text="Tap a network above to edit the zone(s) in which it is active. Locations are approximate, as GPS is not used, to conserve power."
+		android:textColor="#FFF"></TextView>
+	<TextView android:id="@+id/TextView03" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:textSize="14sp"
+		android:paddingTop="15dip"
+		android:text="Please email me if you need support: martin@longhome.co.uk."
+		android:textColor="#FFF"></TextView>
+
+</LinearLayout>

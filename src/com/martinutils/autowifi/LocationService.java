@@ -5,6 +5,8 @@ import java.util.List;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
@@ -21,18 +23,22 @@ import android.util.Log;
 public class LocationService extends Service implements LocationListener
 {
 
-    boolean                  manualConnection = true;
+    boolean                   manualConnection = true;
 
-    List<MyLocation>         locations        = new ArrayList<MyLocation>();
+    List<MyLocation>          locations        = new ArrayList<MyLocation>();
 
-    DBHelper                 helper;
-    Location                 lastKnown;
-    Location                 netLocation;
+    DBHelper                  helper;
+    Location                  lastKnown;
+    Location                  netLocation;
 
     // Allow some attempts before disconnecting
-    long                     scantime         = 0;
+    long                      scantime         = 0;
 
-    public static final long SCANTIME         = 1000 * 60 * 5;              // 5
+    public static final long  SCANTIME         = 1000 * 60 * 5;              // 5
+
+    private SharedPreferences prefs;
+    private WifiMode          mode;
+    private Editor            edit;
 
     // mins
 
@@ -41,6 +47,7 @@ public class LocationService extends Service implements LocationListener
     {
         Log.i("WIFI", "onCreate");
         super.onCreate();
+
         helper = new DBHelper(this);
 
         reload();
@@ -108,7 +115,7 @@ public class LocationService extends Service implements LocationListener
                 {
                     manualConnection = true;
                     Log.i("WIFI", "Auto Disabling");
-                    wifiService.setWifiEnabled(false);
+                    setWifiEnabled(false);
                 }
             }
             else
@@ -126,7 +133,7 @@ public class LocationService extends Service implements LocationListener
             {
                 manualConnection = false;
                 Log.i("WIFI", "Auto Enabling");
-                wifiService.setWifiEnabled(true);
+                setWifiEnabled(true);
             }
         }
     }
@@ -278,8 +285,42 @@ public class LocationService extends Service implements LocationListener
         return loc;
     }
 
+    private void setWifiEnabled(boolean state)
+    {
+        switch (mode)
+        {
+            case ON:
+                getWifiService().setWifiEnabled(true);
+                break;
+            case OFF:
+                getWifiService().setWifiEnabled(false);
+                break;
+            case AUTO:
+                getWifiService().setWifiEnabled(state);
+                break;
+        }
+
+    }
+
     public void reload()
     {
+
+        prefs = getSharedPreferences("wifiSettings", MODE_PRIVATE);
+        edit = prefs.edit();
+
+        mode = WifiMode.valueOf(prefs.getString("mode", "AUTO"));
+        switch (mode)
+        {
+            case ON:
+                setWifiEnabled(true);
+                break;
+            case OFF:
+                setWifiEnabled(false);
+                break;
+            case AUTO:
+                break;
+        }
+
         Log.i("WIFI", "Reloading data.");
         locations.clear();
         SQLiteDatabase db = helper.getReadableDatabase();

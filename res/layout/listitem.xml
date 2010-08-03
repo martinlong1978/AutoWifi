@@ -3,4 +3,4 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:textSize="24sp"
 	android:gravity="fill_horizontal|center_vertical"
-	android:layout_height="70dip"></TextView> 
+	android:layout_height="70dip" android:paddingLeft="20dip"></TextView> 
