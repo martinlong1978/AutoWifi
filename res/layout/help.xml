@@ -5,7 +5,7 @@
 	<TextView android:id="@+id/TextView02" android:layout_width="wrap_content"
 		android:layout_height="wrap_content" android:textSize="14sp"
 		android:paddingTop="15dip"
-		android:text="Enable wifi in the normal way, or by changing the mode on the main screen to 'ON'. Enabling it using the normal method will keep it enabled for 5 minutes, changing the mode to 'ON' changes it permanently. When a connection is established it will be recorded here, along with its location. When you move in and out of range, wifi will be enabled and disabled as appropriate."
+		android:text="Enable wifi in the normal way, or by changing the mode on the main screen to 'ON'. Enabling it using the normal method will keep it enabled until you next leave a wifi zone, changing the mode to 'ON' changes it permanently. When a connection is established it will be recorded here, along with its location. When you move in and out of range, wifi will be enabled and disabled as appropriate."
 		android:textColor="#FFF"></TextView>
 	<TextView android:id="@+id/TextView02" android:layout_width="wrap_content"
 		android:layout_height="wrap_content" android:textSize="14sp"
