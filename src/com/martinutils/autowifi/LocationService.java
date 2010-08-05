@@ -6,7 +6,6 @@ import java.util.List;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
@@ -23,22 +22,15 @@ import android.util.Log;
 public class LocationService extends Service implements LocationListener
 {
 
-    boolean                   manualConnection = true;
-
-    List<MyLocation>          locations        = new ArrayList<MyLocation>();
+    List<MyLocation>          locations = new ArrayList<MyLocation>();
 
     DBHelper                  helper;
     Location                  lastKnown;
     Location                  netLocation;
 
-    // Allow some attempts before disconnecting
-    long                      scantime         = 0;
-
-    public static final long  SCANTIME         = 1000 * 60 * 5;              // 5
-
     private SharedPreferences prefs;
     private WifiMode          mode;
-    private Editor            edit;
+    private boolean           wasInZone;
 
     // mins
 
@@ -57,7 +49,13 @@ public class LocationService extends Service implements LocationListener
                 180000,
                 50,
                 this);
+
+        // If possible get last state
         lastKnown = getLocation();
+        wasInZone = lastKnown == null ? false : isInvicinity(lastKnown);
+
+        // And setup wifi to match
+        setWifiEnabled(wasInZone);
     }
 
     private Location getLocation()
@@ -80,62 +78,66 @@ public class LocationService extends Service implements LocationListener
     public void onLocationChanged(Location location)
     {
         Log.i("WIFI", "onLocationChanged");
-        Location tempLocation = lastKnown;
+
+        Location previousLocation = lastKnown;
         lastKnown = location;
+        final boolean invicinity = isInvicinity(location);
+
         final WifiManager wifiService = getWifiService();
         if (wifiService.isWifiEnabled())
         {
             final WifiInfo connectionInfo = wifiService.getConnectionInfo();
             Log.i("WIFI", "Connection state: "
                     + connectionInfo.getSupplicantState().name());
-            // is wifi still connected
+
+            // If wifi still connected, log new locations
             if (connectionInfo.getSupplicantState() == SupplicantState.COMPLETED)
             {
-                scantime = 0;
                 if (netLocation != null
                         && netLocation.getAccuracy() > lastKnown.getAccuracy())
                 {
+                    Log.i("WIFI", "Logging a netLocation: " + netLocation);
                     logLocation(connectionInfo.getSSID(), netLocation);
                     netLocation = null;
                 }
                 else
                 {
+                    Log.i("WIFI", "Logging a location: " + lastKnown);
                     logLocation(connectionInfo.getSSID());
                 }
             }
+
+            // If wifi has become disconnected, or is rescanning
             else if (connectionInfo.getSupplicantState() == SupplicantState.DISCONNECTED
                     || connectionInfo.getSupplicantState() == SupplicantState.SCANNING)
             {
-                if (scantime == 0)
+                // If moving out of zone, and scanning, disable.
+                if (!invicinity && wasInZone)
                 {
-                    scantime = System.currentTimeMillis() + SCANTIME;
-                }
-                if (!isInvicinity(location)
-                        && scantime < System.currentTimeMillis())
-                {
-                    manualConnection = true;
+                    Log.i("WIFI", "Leaving zone");
                     Log.i("WIFI", "Auto Disabling");
                     setWifiEnabled(false);
                 }
+                netLocation = null;
             }
             else
             {
-                scantime = 0;
-                // We can get a new location as soon as we connect to the wifi,
+                Log.i("WIFI", "Saving a netLocation");
+                // We can get a new location as soon as we see a new AP
                 // so store away the original
-                netLocation = tempLocation;
+                netLocation = previousLocation;
             }
         }
         else
         {
-            scantime = 0;
-            if (isInvicinity(location))
+            if (invicinity && !wasInZone)
             {
-                manualConnection = false;
+                Log.i("WIFI", "Entering zone");
                 Log.i("WIFI", "Auto Enabling");
                 setWifiEnabled(true);
             }
         }
+        wasInZone = invicinity;
     }
 
     @Override
@@ -179,11 +181,9 @@ public class LocationService extends Service implements LocationListener
         lastKnown = getLocation();
         String connectedTo = intent.getStringExtra("connectedTo");
         Log.i("WIFI", "onStart: " + connectedTo);
-        if (connectedTo != null && manualConnection)
+        if (connectedTo != null)
         {
             logLocation(connectedTo);
-            // Subsequent connections are automatic, until we go out of range
-            manualConnection = false;
         }
     }
 
@@ -306,7 +306,6 @@ public class LocationService extends Service implements LocationListener
     {
 
         prefs = getSharedPreferences("wifiSettings", MODE_PRIVATE);
-        edit = prefs.edit();
 
         mode = WifiMode.valueOf(prefs.getString("mode", "AUTO"));
         switch (mode)
