@@ -77,21 +77,26 @@ public class LocationService extends Service implements LocationListener
     @Override
     public void onLocationChanged(Location location)
     {
-        Log.i("WIFI", "onLocationChanged");
-
         Location previousLocation = lastKnown;
         lastKnown = location;
-        final boolean invicinity = isInvicinity(location);
+        boolean invicinity = isInvicinity(location);
+
+        Log.i("WIFI", "onLocationChanged invicinity: "
+                + invicinity
+                + " wasInZone: "
+                + wasInZone);
 
         final WifiManager wifiService = getWifiService();
         if (wifiService.isWifiEnabled())
         {
             final WifiInfo connectionInfo = wifiService.getConnectionInfo();
-            Log.i("WIFI", "Connection state: "
-                    + connectionInfo.getSupplicantState().name());
+            final SupplicantState supplicantState = connectionInfo.getSupplicantState();
+            Log.i("WIFI", "Is Enabled, connection state: "
+                    + supplicantState.name());
 
             // If wifi still connected, log new locations
-            if (connectionInfo.getSupplicantState() == SupplicantState.COMPLETED)
+            if (supplicantState == SupplicantState.COMPLETED
+                    || supplicantState == SupplicantState.ASSOCIATED)
             {
                 if (netLocation != null
                         && netLocation.getAccuracy() > lastKnown.getAccuracy())
@@ -108,8 +113,8 @@ public class LocationService extends Service implements LocationListener
             }
 
             // If wifi has become disconnected, or is rescanning
-            else if (connectionInfo.getSupplicantState() == SupplicantState.DISCONNECTED
-                    || connectionInfo.getSupplicantState() == SupplicantState.SCANNING)
+            else if (supplicantState == SupplicantState.DISCONNECTED
+                    || supplicantState == SupplicantState.SCANNING)
             {
                 // If moving out of zone, and scanning, disable.
                 if (!invicinity && wasInZone)
@@ -117,6 +122,7 @@ public class LocationService extends Service implements LocationListener
                     Log.i("WIFI", "Leaving zone");
                     Log.i("WIFI", "Auto Disabling");
                     setWifiEnabled(false);
+                    wasInZone = false;
                 }
                 netLocation = null;
             }
@@ -130,14 +136,19 @@ public class LocationService extends Service implements LocationListener
         }
         else
         {
+            Log.i("WIFI", "Is Disabled");
             if (invicinity && !wasInZone)
             {
                 Log.i("WIFI", "Entering zone");
                 Log.i("WIFI", "Auto Enabling");
                 setWifiEnabled(true);
+                wasInZone = true;
+            }
+            else
+            {
+                Log.i("WIFI", "Doing nothing");
             }
         }
-        wasInZone = invicinity;
     }
 
     @Override
