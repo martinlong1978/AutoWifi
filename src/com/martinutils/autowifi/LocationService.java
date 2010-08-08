@@ -296,7 +296,7 @@ public class LocationService extends Service implements LocationListener
         return loc;
     }
 
-    private void setWifiEnabled(boolean state)
+    public void setWifiEnabled(boolean state)
     {
         switch (mode)
         {

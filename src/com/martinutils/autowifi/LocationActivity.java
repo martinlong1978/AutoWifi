@@ -315,11 +315,11 @@ public class LocationActivity extends Activity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        if (item.getTitle().equals("Help"))
+        if (item.getItemId() == R.id.Help)
         {
             showDialog(0);
         }
-        if (item.getTitle().equals("Support"))
+        if (item.getItemId() == R.id.Support)
         {
             try
             {
@@ -331,11 +331,20 @@ public class LocationActivity extends Activity implements
                 e.printStackTrace();
             }
         }
-        if (item.getTitle().equals("Reload"))
+        if (item.getItemId() == R.id.Reload)
         {
             rePopulate();
         }
+        if (item.getItemId() == R.id.Off)
+        {
+            service.setWifiEnabled(false);
+        }
+        if (item.getItemId() == R.id.On)
+        {
+            service.setWifiEnabled(true);
+        }
         return true;
+        // android.R.drawable.ic_menu_send
     }
 
     @Override

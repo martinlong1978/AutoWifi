@@ -1,21 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical" android:layout_width="fill_parent"
-	android:layout_height="fill_parent">
-	<TextView android:id="@+id/TextView02" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:textSize="14sp"
-		android:paddingTop="15dip"
-		android:text="Enable wifi in the normal way, or by changing the mode on the main screen to 'ON'. Enabling it using the normal method will keep it enabled until you next leave a wifi zone, changing the mode to 'ON' changes it permanently. When a connection is established it will be recorded here, along with its location. When you move in and out of range, wifi will be enabled and disabled as appropriate."
-		android:textColor="#FFF"></TextView>
-	<TextView android:id="@+id/TextView02" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:textSize="14sp"
-		android:paddingTop="15dip"
-		android:text="Tap a network above to edit the zone(s) in which it is active. Locations are approximate, as GPS is not used, to conserve power."
-		android:textColor="#FFF"></TextView>
-	<TextView android:id="@+id/TextView03" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:textSize="14sp"
-		android:paddingTop="15dip"
-		android:text="Please email me if you need support: martin@longhome.co.uk."
-		android:textColor="#FFF"></TextView>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/ScrollView01"
+	android:layout_width="wrap_content" android:layout_height="wrap_content">
+	<LinearLayout 
+		android:orientation="vertical" android:layout_width="fill_parent"
+		android:layout_height="fill_parent">
+		<TextView android:id="@+id/TextView02" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:textSize="14sp"
+			android:paddingTop="15dip"
+			android:text="'Automatic mode' will enable and disable wifi when (and only when) you enter and leave the remembered wifi zones. You can still enable/disable wifi using wifi settings on the phone or your favourite power widget - this will last until you next leave/enter a remembered zone."
+			android:textColor="#FFF"></TextView>
+		<TextView android:id="@+id/TextViewAuto"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:textSize="14sp" android:paddingTop="15dip"
+			android:text="The location of known connections is remembered automatically when you connect to an access point. Just enable wifi manually, connect to a zone, and it will appear in the list (use the 'Reload' option if not)."
+			android:textColor="#FFF"></TextView>
+		<TextView android:id="@+id/TextViewAuto"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:textSize="14sp" android:paddingTop="15dip"
+			android:text="This app DOES NOT use GPS or polling for access points. Because it uses cell-tower location, you may need to be about 1km (1-2miles) outside the defined zone before it will deactivate wifi. Using GPS or polling would reduce or negate any benefit to battery life."
+			android:textColor="#FFF"></TextView>
+		<TextView android:id="@+id/TextView02" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:textSize="14sp"
+			android:paddingTop="15dip"
+			android:text="Tap a network name to edit the size of the zone(s) in which it is active. Locations are approximate."
+			android:textColor="#FFF"></TextView>
+		<TextView android:id="@+id/TextView03" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:textSize="14sp"
+			android:paddingTop="15dip"
+			android:text="Please email me if you need support: martin@longhome.co.uk. The support menu button will also attach a useful log file."
+			android:textColor="#FFF"></TextView>
+
 
 </LinearLayout>
+</ScrollView>
