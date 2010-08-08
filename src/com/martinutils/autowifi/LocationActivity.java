@@ -1,5 +1,9 @@
 package com.martinutils.autowifi;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.ComponentName;
@@ -13,6 +17,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -259,13 +264,51 @@ public class LocationActivity extends Activity implements
     @Override
     public void onClick(View v)
     {
-        sendEmail();
+        try
+        {
+            sendEmail();
+        }
+        catch (IOException e)
+        {
+            Log.e("WIFI", e.getMessage(), e);
+            e.printStackTrace();
+        }
     }
 
-    private void sendEmail()
+    private void sendEmail() throws IOException
     {
+        Process proc = Runtime.getRuntime().exec(new String[] { "logcat",
+                "-d",
+                "-s",
+                "WIFI" });
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()),
+                1024);
+
+        try
+        {
+            proc.waitFor();
+        }
+        catch (InterruptedException e)
+        {
+            Thread.currentThread().interrupt();
+        }
+
+        StringBuilder builder = new StringBuilder();
+
+        String line;
+
+        while ((line = reader.readLine()) != null)
+        {
+            builder.append(line + "\n");
+        }
+
         Intent intent = new Intent(Intent.ACTION_SENDTO,
                 Uri.parse("mailto:martin@longhome.co.uk"));
+
+        intent.putExtra("subject", "Auto Wifi support");
+        intent.putExtra("body", builder.toString());
+
         startActivity(intent);
     }
 
@@ -278,7 +321,15 @@ public class LocationActivity extends Activity implements
         }
         if (item.getTitle().equals("Support"))
         {
-            sendEmail();
+            try
+            {
+                sendEmail();
+            }
+            catch (IOException e)
+            {
+                Log.e("WIFI", e.getMessage(), e);
+                e.printStackTrace();
+            }
         }
         if (item.getTitle().equals("Reload"))
         {
