@@ -4,9 +4,10 @@
 	android:layout_height="fill_parent">
 	<TextView android:id="@+id/TextView01" android:layout_height="wrap_content"
 		android:layout_width="fill_parent" android:textSize="26sp"
-		android:gravity="left" android:textStyle="bold" android:text="Connection state:"></TextView>
-	<Button android:text="@+id/Button01" android:id="@+id/Button01"
-		android:layout_width="fill_parent" android:layout_height="wrap_content"></Button>
+		android:gravity="left" android:textStyle="bold" android:text="Connection mode:"></TextView>
+	<LinearLayout android:id="@+id/LinearLayout01" android:layout_width="wrap_content" android:layout_height="wrap_content"><Button android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="Always ON" android:id="@+id/ButtonON"></Button><Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Always OFF" android:id="@+id/ButtonOFF"></Button>
+<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Automatic Mode" android:id="@+id/ButtonAUTO"></Button>
+</LinearLayout>
 	<TextView android:id="@+id/TextView01" android:layout_height="wrap_content"
 		android:layout_width="fill_parent" android:textSize="26sp"
 		android:gravity="left" android:textStyle="bold" android:text="Known Networks:"></TextView>
@@ -19,5 +20,6 @@
 		android:paddingTop="15dip"
 		android:text="Please email me if you need support: martin@longhome.co.uk. Click here to compose a new email."
 		android:textColor="#FFF"></TextView>
+
 
 </LinearLayout>

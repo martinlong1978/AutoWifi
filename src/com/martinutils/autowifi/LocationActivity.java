@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -38,7 +39,9 @@ public class LocationActivity extends Activity implements
     private ArrayAdapter<String> arrayAdapter;
     private DBHelper             helper;
     private TextView             tv;
-    private Button               modeButton;
+    private Button               modeButtonOn;
+    private Button               modeButtonOff;
+    private Button               modeButtonAuto;
     private SharedPreferences    prefs;
     private WifiMode             mode;
     private Editor               edit;
@@ -58,18 +61,42 @@ public class LocationActivity extends Activity implements
         this.startService(intent);
         this.setContentView(R.layout.main);
 
-        modeButton = (Button) findViewById(R.id.Button01);
-        modeButton.setText(mode.name());
+        modeButtonOn = (Button) findViewById(R.id.ButtonON);
+        modeButtonOff = (Button) findViewById(R.id.ButtonOFF);
+        modeButtonAuto = (Button) findViewById(R.id.ButtonAUTO);
 
-        modeButton.setOnClickListener(new OnClickListener() {
+        modeButtonOn.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v)
             {
-                onModeButtonClick(v);
+                onModeButtonClick(v, WifiMode.ON);
 
             }
         });
+
+        modeButtonOff.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v)
+            {
+                onModeButtonClick(v, WifiMode.OFF);
+
+            }
+        });
+
+        modeButtonAuto.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v)
+            {
+                onModeButtonClick(v, WifiMode.AUTO);
+
+            }
+        });
+
+        updateButtons();
+
         lv = (ListView) this.findViewById(R.id.ListView01);
         arrayAdapter = new ArrayAdapter<String>(this, R.layout.listitem);
         lv.setAdapter(arrayAdapter);
@@ -81,6 +108,25 @@ public class LocationActivity extends Activity implements
         rePopulate();
         tv = (TextView) findViewById(R.id.TextView03);
         tv.setOnClickListener(this);
+    }
+
+    private void updateButtons()
+    {
+        this.modeButtonAuto.setBackgroundColor(Color.GRAY);
+        this.modeButtonOn.setBackgroundColor(Color.GRAY);
+        this.modeButtonOff.setBackgroundColor(Color.GRAY);
+        switch (mode)
+        {
+            case ON:
+                modeButtonOn.setBackgroundColor(Color.GREEN);
+                break;
+            case OFF:
+                modeButtonOff.setBackgroundColor(Color.GREEN);
+                break;
+            case AUTO:
+                modeButtonAuto.setBackgroundColor(Color.GREEN);
+                break;
+        }
     }
 
     @Override
@@ -97,21 +143,11 @@ public class LocationActivity extends Activity implements
         rePopulate();
     }
 
-    private void onModeButtonClick(View v)
+    private void onModeButtonClick(View v, WifiMode mode)
     {
-        switch (mode)
-        {
-            case OFF:
-                mode = WifiMode.ON;
-                break;
-            case ON:
-                mode = WifiMode.AUTO;
-                break;
-            case AUTO:
-                mode = WifiMode.OFF;
-        }
-        modeButton.setText(mode.name());
+        this.mode = mode;
         edit.putString("mode", mode.name());
+        updateButtons();
         edit.commit();
         service.reload();
     }
@@ -243,6 +279,10 @@ public class LocationActivity extends Activity implements
         if (item.getTitle().equals("Support"))
         {
             sendEmail();
+        }
+        if (item.getTitle().equals("Reload"))
+        {
+            rePopulate();
         }
         return true;
     }

@@ -3,4 +3,5 @@
   xmlns:android="http://schemas.android.com/apk/res/android">
 <item android:id="@+id/Help" android:title="Help"></item>
 <item android:id="@+id/Support" android:title="Support"></item>
+<item android:id="@+id/Reload" android:title="Reload"></item>
 </menu>
