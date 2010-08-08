@@ -298,7 +298,8 @@ public class LocationActivity extends Activity implements
 
                 dialog.setContentView(R.layout.help);
                 dialog.setTitle("Help");
-                dialog.show();
+                // dialog.show();
+                break;
 
             default:
                 dialog = null;
