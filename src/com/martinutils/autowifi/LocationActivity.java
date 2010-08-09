@@ -278,6 +278,8 @@ public class LocationActivity extends Activity implements
     private void sendEmail() throws IOException
     {
         Process proc = Runtime.getRuntime().exec(new String[] { "logcat",
+                "-v",
+                "time",
                 "-d",
                 "-s",
                 "WIFI" });
