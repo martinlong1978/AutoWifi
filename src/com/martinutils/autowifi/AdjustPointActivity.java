@@ -21,7 +21,7 @@ public class AdjustPointActivity extends Activity implements
     private Location           loc;
     private String             id;
     private TextView           accView;
-    public static final double ACC_CONSTANT = 333333;
+    public static final double ACC_CONSTANT = 500000;
 
     /** Called when the activity is first created. */
     @Override
@@ -53,7 +53,7 @@ public class AdjustPointActivity extends Activity implements
             latView.setText("" + loc.getLatitude());
             longView.setText("" + loc.getLongitude());
             accView.setText("" + loc.getAccuracy());
-            double acc = (Math.log10(loc.getAccuracy()) - 1) * ACC_CONSTANT;
+            double acc = (Math.log10(loc.getAccuracy()) - 2) * ACC_CONSTANT;
             seekBar.setProgress((int) acc);
             seekBar.setOnSeekBarChangeListener(this);
         }
@@ -75,7 +75,7 @@ public class AdjustPointActivity extends Activity implements
             int progress,
             boolean fromUser)
     {
-        acc = (Math.pow(10, ((double) progress / ACC_CONSTANT) + 1));
+        acc = (Math.pow(10, ((double) progress / ACC_CONSTANT) + 2));
         accView.setText("" + (int) acc);
     }
 
