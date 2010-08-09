@@ -46,8 +46,8 @@ public class LocationService extends Service implements LocationListener
 
         LocationManager service = getLocationService();
         service.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
-                180000,
-                50,
+                0,
+                0,
                 this);
 
         // If possible get last state
@@ -247,10 +247,19 @@ public class LocationService extends Service implements LocationListener
     private boolean isInvicinity(Location location, String ssid)
     {
         Log.i("WIFI", "isInvicinity");
+        Log.i("WIFI", "Location: "
+                + location.getLatitude()
+                + ","
+                + location.getLongitude()
+                + " acc: "
+                + location.getAccuracy());
         for (MyLocation myLocation : locations)
         {
             Location wifiLocation = myLocation.loc;
-            float acc = wifiLocation.getAccuracy() + location.getAccuracy();
+            float acc = ((ssid == null)
+                    ? wifiLocation.getAccuracy() + location.getAccuracy()
+                    : Math.max(wifiLocation.getAccuracy(),
+                            location.getAccuracy()));
             Log.i("WIFI", "Compare to: "
                     + wifiLocation.getLatitude()
                     + ","
