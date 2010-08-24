@@ -113,6 +113,7 @@ public class LocationActivity extends Activity implements
         rePopulate();
         tv = (TextView) findViewById(R.id.TextView03);
         tv.setOnClickListener(this);
+
     }
 
     private void updateButtons()
@@ -201,6 +202,10 @@ public class LocationActivity extends Activity implements
                                                     IBinder service)
                                             {
                                                 LocationActivity.this.service = ((LocalBinder) service).getService();
+                                                if (!LocationActivity.this.service.isLocationEnabled())
+                                                {
+                                                    showDialog(1);
+                                                }
                                             }
                                         };
 
@@ -363,11 +368,32 @@ public class LocationActivity extends Activity implements
                 // dialog.show();
                 break;
 
+            case 1:
+                dialog = new Dialog(this);
+
+                dialog.setContentView(R.layout.enable);
+                dialog.setTitle("Change settings");
+
+                Button but = (Button) dialog.findViewById(R.id.GoSettings);
+                but.setOnClickListener(dialogClickListener);
+                // dialog.show();
+                break;
+
             default:
                 dialog = null;
         }
         return dialog;
     }
+
+    OnClickListener dialogClickListener = new OnClickListener() {
+
+                                            @Override
+                                            public void onClick(View v)
+                                            {
+                                                Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                                startActivity(intent);
+                                            }
+                                        };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)

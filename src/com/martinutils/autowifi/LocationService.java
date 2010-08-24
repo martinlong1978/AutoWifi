@@ -66,7 +66,13 @@ public class LocationService extends Service implements LocationListener
 
     private LocationManager getLocationService()
     {
-        return (LocationManager) this.getSystemService(LOCATION_SERVICE);
+        final LocationManager systemService = (LocationManager) this.getSystemService(LOCATION_SERVICE);
+        return systemService;
+    }
+
+    public boolean isLocationEnabled()
+    {
+        return getLocationService().isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
 
     private WifiManager getWifiService()

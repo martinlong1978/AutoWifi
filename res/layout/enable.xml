@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/ScrollView01"
+	android:layout_width="wrap_content" android:layout_height="wrap_content">
+	<LinearLayout 
+		android:orientation="vertical" android:layout_width="fill_parent"
+		android:layout_height="fill_parent">
+		<TextView android:id="@+id/TextView02" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:textSize="14sp"
+			android:paddingTop="15dip"
+			android:text="Network location support is not enabled."
+			android:textColor="#FFF"></TextView>
+		<TextView android:id="@+id/TextViewAuto"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:textSize="14sp" android:paddingTop="15dip"
+			android:text="You must enable 'Use wireless networks' for this app to function correctly."
+			android:textColor="#FFF" android:paddingBottom="15dip"></TextView>
+
+<Button android:layout_height="wrap_content" android:id="@+id/GoSettings" android:layout_width="fill_parent" android:text="Go to Settings"></Button>
+</LinearLayout>
+</ScrollView>
