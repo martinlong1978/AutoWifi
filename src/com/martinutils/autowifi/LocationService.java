@@ -440,7 +440,9 @@ public class LocationService extends Service implements LocationListener
     {
         StringBuilder builder = new StringBuilder();
         final WifiManager wifiService = getWifiService();
-        String state = wifiService.isWifiEnabled() ? "enabled" : "disabled";
+        String state = wifiService.isWifiEnabled()
+                ? "<font color='green'><b>enabled</b></font>"
+                : "<font color='red'><b>disabled</b></font>";
         if (mode != WifiMode.AUTO)
         {
             state = "permanently " + state;
