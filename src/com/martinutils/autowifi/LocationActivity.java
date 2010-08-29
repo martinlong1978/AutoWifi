@@ -16,6 +16,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -25,6 +26,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
+import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -47,9 +49,12 @@ public class LocationActivity extends Activity implements
     private Button               modeButtonOn;
     private Button               modeButtonOff;
     private Button               modeButtonAuto;
+    private Button               mapButton;
     private SharedPreferences    prefs;
     private WifiMode             mode;
     private Editor               edit;
+    private WebView              status;
+    private Handler              handler;
 
     /** Called when the activity is first created. */
     @Override
@@ -109,11 +114,15 @@ public class LocationActivity extends Activity implements
         lv.setOnItemClickListener(this);
         lv.setOnCreateContextMenuListener(this);
         Intent serviceIntent = new Intent(this, LocationService.class);
-        bindService(serviceIntent, serviceConn, BIND_AUTO_CREATE);
-        rePopulate();
+        status = (WebView) findViewById(R.id.WebView01);
+        status.setBackgroundColor(Color.BLACK);
         tv = (TextView) findViewById(R.id.TextView03);
         tv.setOnClickListener(this);
-
+        mapButton = (Button) findViewById(R.id.OpenMap);
+        mapButton.setEnabled(false);
+        mapButton.setOnClickListener(mapClickListener);
+        handler = new Handler();
+        bindService(serviceIntent, serviceConn, BIND_AUTO_CREATE);
     }
 
     private void updateButtons()
@@ -185,6 +194,10 @@ public class LocationActivity extends Activity implements
                 db.close();
             }
         }
+        status.loadData(LocationActivity.this.service.getStatus(),
+                "text/html",
+                "UTF-8");
+        mapButton.setEnabled(service.isInvicinity());
     }
 
     private LocationService service;
@@ -206,8 +219,41 @@ public class LocationActivity extends Activity implements
                                                 {
                                                     showDialog(1);
                                                 }
+                                                startUpdateThread();
+                                                rePopulate();
                                             }
+
                                         };
+
+    private void startUpdateThread()
+    {
+        new Thread(new Runnable() {
+
+            @Override
+            public void run()
+            {
+                try
+                {
+                    while (true)
+                    {
+                        handler.post(new Runnable() {
+
+                            @Override
+                            public void run()
+                            {
+                                rePopulate();
+                            }
+                        });
+                        Thread.sleep(1000);
+                    }
+                }
+                catch (InterruptedException ex)
+                {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }).start();
+    }
 
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3)
@@ -220,9 +266,9 @@ public class LocationActivity extends Activity implements
     {
         Intent intent = new Intent(this, PlotActivity.class);
         intent.putExtra("ssid", networkName);
+        intent.putExtra("location", service.getLocation());
         startActivity(intent);
     }
-
     MenuItem view;
     MenuItem delete;
     String   selection;
@@ -303,6 +349,8 @@ public class LocationActivity extends Activity implements
 
         StringBuilder builder = new StringBuilder();
 
+        builder.append("Please enter a description of your problem. (Requests missing this are automatically deleted.)\n\n\n");
+
         String line;
 
         while ((line = reader.readLine()) != null)
@@ -311,7 +359,7 @@ public class LocationActivity extends Activity implements
         }
 
         Intent intent = new Intent(Intent.ACTION_SENDTO,
-                Uri.parse("mailto:martin@longhome.co.uk"));
+                Uri.parse("mailto:support@longhome.co.uk"));
 
         intent.putExtra("subject", "Auto Wifi support");
         intent.putExtra("body", builder.toString());
@@ -402,5 +450,14 @@ public class LocationActivity extends Activity implements
         inflater.inflate(R.menu.wifi_menu, menu);
         return true;
     }
+
+    public OnClickListener mapClickListener = new OnClickListener() {
+
+                                                @Override
+                                                public void onClick(View v)
+                                                {
+                                                    openNetwork(service.getVicinity().ssid);
+                                                }
+                                            };
 
 }

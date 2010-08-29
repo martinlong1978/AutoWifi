@@ -17,17 +17,17 @@
 		<TextView android:id="@+id/TextViewAuto"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
 			android:textSize="14sp" android:paddingTop="15dip"
-			android:text="This app DOES NOT use GPS or polling for access points. Because it uses cell-tower location, you may need to be about 1km (1-2miles) outside the defined zone before it will deactivate wifi. Using GPS or polling would reduce or negate any benefit to battery life."
+			android:text="This app DOES NOT use GPS or polling for access points. Because it uses cell-tower location, you may need to be about 1km (1-2miles) outside the defined zone before it will deactivate wifi. Using GPS or polling would reduce or negate any benefit to battery life. Because of this some unusual locations may be plotted - it's best not to delete them as they represent 'home' according to the cell-tower location."
 			android:textColor="#FFF"></TextView>
 		<TextView android:id="@+id/TextView02" android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:textSize="14sp"
 			android:paddingTop="15dip"
-			android:text="Tap a network name to edit the size of the zone(s) in which it is active. Locations are approximate."
+			android:text="Tap a network name to edit the size of the zone(s) in which it is active. Locations are approximate. The red zone shows your current estimated location."
 			android:textColor="#FFF"></TextView>
 		<TextView android:id="@+id/TextView03" android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:textSize="14sp"
 			android:paddingTop="15dip"
-			android:text="Please email me if you need support: martin@longhome.co.uk. The support menu button will also attach a useful log file."
+			android:text="Please email me if you need support: support@longhome.co.uk. The support menu button will also attach a useful log file."
 			android:textColor="#FFF"></TextView>
 
 

@@ -24,13 +24,22 @@ public class RadiusItem extends OverlayItem
 
     public RadiusItem(int id, GeoPoint point, MapView view, float radius)
     {
+        this(id, point, view, radius, Color.GREEN);
+    }
+
+    public RadiusItem(int id,
+                      GeoPoint point,
+                      MapView view,
+                      float radius,
+                      int color)
+    {
         super(point, "", "");
         dot = new OvalShape();
         dot.resize(6, 6);
         dotDraw = new ShapeDrawable(dot);
         circle = new OvalShape();
         pic = new ShapeDrawable(circle);
-        pic.getPaint().setColor(Color.GREEN);
+        pic.getPaint().setColor(color);
         pic.setAlpha(80);
         layers = new LayerDrawable(new Drawable[] { pic, dotDraw });
         this.mapView = view;

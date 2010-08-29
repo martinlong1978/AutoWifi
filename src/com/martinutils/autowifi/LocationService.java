@@ -52,13 +52,13 @@ public class LocationService extends Service implements LocationListener
 
         // If possible get last state
         lastKnown = getLocation();
-        wasInZone = lastKnown == null ? false : isInvicinity(lastKnown);
+        wasInZone = lastKnown == null ? false : isInvicinity();
 
         // And setup wifi to match
         setWifiEnabled(wasInZone);
     }
 
-    private Location getLocation()
+    public Location getLocation()
     {
         Log.i("WIFI", "getLocation");
         return getLocationService().getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
@@ -85,7 +85,7 @@ public class LocationService extends Service implements LocationListener
     {
         Location previousLocation = lastKnown;
         lastKnown = location;
-        boolean invicinity = isInvicinity(location);
+        boolean invicinity = isInvicinity();
 
         Log.i("WIFI", "onLocationChanged invicinity: "
                 + invicinity
@@ -245,13 +245,33 @@ public class LocationService extends Service implements LocationListener
 
     }
 
-    private boolean isInvicinity(Location location)
+    public boolean isInvicinity()
     {
-        return isInvicinity(location, null);
+        return isInvicinity(lastKnown, null);
     }
+
+    private static final int VICINITY_IN   = 2;
+    private static final int VICINITY_OUT  = 0;
+    private static final int VICINITY_NEAR = 1;
 
     private boolean isInvicinity(Location location, String ssid)
     {
+        final NetInfo info = getVicinity(location, ssid);
+        return (ssid == null)
+                ? info.vicinity > VICINITY_OUT
+                : info.vicinity > VICINITY_NEAR;
+    }
+
+    public NetInfo getVicinity()
+    {
+        return getVicinity(lastKnown, null);
+    }
+
+    private NetInfo getVicinity(Location location, String ssid)
+    {
+        NetInfo out = new NetInfo();
+        out.vicinity = VICINITY_OUT;
+
         Log.i("WIFI", "isInvicinity");
         Log.i("WIFI", "Location: "
                 + location.getLatitude()
@@ -262,27 +282,38 @@ public class LocationService extends Service implements LocationListener
         for (MyLocation myLocation : locations)
         {
             Location wifiLocation = myLocation.loc;
-            float acc = ((ssid == null)
-                    ? wifiLocation.getAccuracy() + location.getAccuracy()
-                    : Math.max(wifiLocation.getAccuracy(),
-                            location.getAccuracy()));
+            float accIn = Math.max(wifiLocation.getAccuracy(),
+                    location.getAccuracy());
+            float accNear = wifiLocation.getAccuracy() + location.getAccuracy();
             Log.i("WIFI", "Compare to: "
                     + wifiLocation.getLatitude()
                     + ","
                     + wifiLocation.getLongitude()
                     + " acc: "
                     + wifiLocation.getAccuracy());
+            final float distanceTo = wifiLocation.distanceTo(location);
             Log.i("WIFI", "distance: "
-                    + wifiLocation.distanceTo(location)
-                    + " acc: "
-                    + acc);
-            if (wifiLocation.distanceTo(location) < acc
+                    + distanceTo
+                    + " accIn: "
+                    + accIn
+                    + " accNear: "
+                    + accNear);
+            if (distanceTo < accIn
                     && (ssid == null || ssid.equals(myLocation.ssid)))
             {
-                return true;
+                out.vicinity = VICINITY_IN;
+                out.ssid = myLocation.ssid;
+                return out;
             }
+            if (distanceTo < accNear
+                    && (ssid == null || ssid.equals(myLocation.ssid)))
+            {
+                out.vicinity = VICINITY_NEAR;
+                out.ssid = myLocation.ssid;
+            }
+
         }
-        return false;
+        return out;
     }
 
     public static String locationToString(Location loc)
@@ -403,6 +434,53 @@ public class LocationService extends Service implements LocationListener
 
         String   ssid;
         Location loc;
+    }
+
+    public String getStatus()
+    {
+        StringBuilder builder = new StringBuilder();
+        final WifiManager wifiService = getWifiService();
+        String state = wifiService.isWifiEnabled() ? "enabled" : "disabled";
+        if (mode != WifiMode.AUTO)
+        {
+            state = "permanently " + state;
+        }
+        String proximity = "";
+        final NetInfo vicinity = getVicinity();
+        String ap = vicinity.ssid;
+        switch (vicinity.vicinity)
+        {
+            case VICINITY_OUT:
+                proximity = "<font color='red'><b>outside</b></font>";
+                break;
+            case VICINITY_NEAR:
+                proximity = "<font color='orange'><b>near</b></font>";
+                break;
+            case VICINITY_IN:
+                proximity = "<font color='green'><b>inside</b></font>";
+                break;
+        }
+        ap = (ap == null) ? "" : " <b>" + ap + "</b>";
+        builder.append("<html><body style='background:black; color:#BBB;'>");
+        builder.append("You are "
+                + proximity
+                + " an active zone"
+                + ap
+                + ".<br>");
+        String override = "";
+        if (wifiService.isWifiEnabled() != wasInZone)
+        {
+            override = "manually overridden";
+        }
+        builder.append("Wifi is currently " + state + " " + override);
+        builder.append("</body></html>");
+        return builder.toString();
+    }
+
+    class NetInfo
+    {
+        public int    vicinity;
+        public String ssid;
     }
 
 }

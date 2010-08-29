@@ -104,9 +104,14 @@ public class WifiOverlay extends ItemizedOverlay<RadiusItem>
     protected boolean onTap(int index)
     {
         Intent intent = new Intent(context, AdjustPointActivity.class);
-        intent.putExtra("pointId", mOverlays.get(index).getId());
-        context.startActivity(intent);
-        return true;
+        final int id = mOverlays.get(index).getId();
+        if (id < 99999)
+        {
+            intent.putExtra("pointId", id);
+            context.startActivity(intent);
+            return true;
+        }
+        return false;
     }
 
     public void clear()

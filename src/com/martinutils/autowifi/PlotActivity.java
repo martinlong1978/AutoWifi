@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -26,6 +27,7 @@ public class PlotActivity extends MapActivity
     private String        ssid;
     private List<Overlay> overlays;
     private WifiOverlay   ovl;
+    private Location      myLocation;
 
     /** Called when the activity is first created. */
     @Override
@@ -38,6 +40,7 @@ public class PlotActivity extends MapActivity
         mapView.displayZoomControls(false);
         mapView.setSatellite(false);
         ssid = this.getIntent().getStringExtra("ssid");
+        myLocation = this.getIntent().getParcelableExtra("location");
         dbh = new DBHelper(this);
 
         overlays = mapView.getOverlays();
@@ -87,6 +90,13 @@ public class PlotActivity extends MapActivity
         ovl = new WifiOverlay(getResources().getDrawable(R.drawable.icon), this);
         overlays.clear();
         overlays.add(ovl);
+        GeoPoint point = locationToPoint(myLocation);
+        RadiusItem overlayitem = new RadiusItem(99999,
+                point,
+                mapView,
+                myLocation.getAccuracy(),
+                Color.RED);
+        ovl.addOverlay(overlayitem);
         SQLiteDatabase db = dbh.getReadableDatabase();
         Cursor cur = null;
         try
@@ -98,9 +108,8 @@ public class PlotActivity extends MapActivity
                 do
                 {
                     Location loc = LocationService.stringToLocation(cur.getString(0));
-                    GeoPoint point = new GeoPoint((int) (1000000 * loc.getLatitude()),
-                            (int) (1000000 * loc.getLongitude()));
-                    RadiusItem overlayitem = new RadiusItem(cur.getInt(1),
+                    point = locationToPoint(loc);
+                    overlayitem = new RadiusItem(cur.getInt(1),
                             point,
                             mapView,
                             loc.getAccuracy());
@@ -123,6 +132,12 @@ public class PlotActivity extends MapActivity
                 db.close();
             }
         }
+    }
+
+    private GeoPoint locationToPoint(Location loc)
+    {
+        return new GeoPoint((int) (1000000 * loc.getLatitude()),
+                (int) (1000000 * loc.getLongitude()));
     }
 
     @Override
