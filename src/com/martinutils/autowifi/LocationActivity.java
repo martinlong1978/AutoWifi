@@ -55,6 +55,7 @@ public class LocationActivity extends Activity implements
     private Editor               edit;
     private WebView              status;
     private Handler              handler;
+    private Thread               updateThread;
 
     /** Called when the activity is first created. */
     @Override
@@ -152,10 +153,17 @@ public class LocationActivity extends Activity implements
     }
 
     @Override
-    protected void onRestart()
+    protected void onResume()
     {
-        super.onRestart();
-        rePopulate();
+        super.onResume();
+        startUpdateThread();
+    }
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+        stopUpdateThread();
     }
 
     private void onModeButtonClick(View v, WifiMode mode)
@@ -194,10 +202,13 @@ public class LocationActivity extends Activity implements
                 db.close();
             }
         }
-        status.loadData(LocationActivity.this.service.getStatus(),
-                "text/html",
-                "UTF-8");
-        mapButton.setEnabled(service.isInvicinity());
+        if (service != null)
+        {
+            status.loadData(LocationActivity.this.service.getStatus(),
+                    "text/html",
+                    "UTF-8");
+            mapButton.setEnabled(service.isInvicinity());
+        }
     }
 
     private LocationService service;
@@ -220,39 +231,51 @@ public class LocationActivity extends Activity implements
                                                     showDialog(1);
                                                 }
                                                 startUpdateThread();
-                                                rePopulate();
                                             }
 
                                         };
 
-    private void startUpdateThread()
+    private synchronized void startUpdateThread()
     {
-        new Thread(new Runnable() {
+        if (updateThread == null)
+        {
+            updateThread = new Thread(new Runnable() {
 
-            @Override
-            public void run()
-            {
-                try
+                @Override
+                public void run()
                 {
-                    while (true)
+                    try
                     {
-                        handler.post(new Runnable() {
+                        while (true)
+                        {
+                            handler.post(new Runnable() {
 
-                            @Override
-                            public void run()
-                            {
-                                rePopulate();
-                            }
-                        });
-                        Thread.sleep(1000);
+                                @Override
+                                public void run()
+                                {
+                                    rePopulate();
+                                }
+                            });
+                            Thread.sleep(1000);
+                        }
+                    }
+                    catch (InterruptedException ex)
+                    {
+                        Thread.currentThread().interrupt();
                     }
                 }
-                catch (InterruptedException ex)
-                {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        }).start();
+            });
+            updateThread.start();
+        }
+    }
+
+    private synchronized void stopUpdateThread()
+    {
+        if (updateThread != null)
+        {
+            updateThread.interrupt();
+            updateThread = null;
+        }
     }
 
     @Override
