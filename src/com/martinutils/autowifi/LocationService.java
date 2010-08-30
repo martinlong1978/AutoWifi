@@ -264,6 +264,10 @@ public class LocationService extends Service implements LocationListener
 
     public NetInfo getVicinity()
     {
+        if (lastKnown == null)
+        {
+            return new NetInfo();
+        }
         return getVicinity(lastKnown, null);
     }
 
@@ -481,7 +485,7 @@ public class LocationService extends Service implements LocationListener
 
     class NetInfo
     {
-        public int    vicinity;
+        public int    vicinity = VICINITY_OUT;
         public String ssid;
     }
 
