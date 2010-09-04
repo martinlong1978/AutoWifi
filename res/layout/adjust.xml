@@ -6,7 +6,7 @@
 		android:layout_height="wrap_content" android:textSize="25sp"
 		android:gravity="center_horizontal" android:textColor="#FFF"
 		android:text="Location Details"></TextView>
-	<TableLayout android:id="@+id/TableLayout01"
+	<TextView android:id="@+id/TextView02" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="WARNING: Editting or deleting points could cause the application to stop working. Points are placed based on your REPORTED location while connected to an access point, and not your ACTUAL location. These locations can be WILDLY inaccurate, but are often reproducable, so they happen to work. Only edit points if you know what you are doing."></TextView><TableLayout android:id="@+id/TableLayout01"
 		android:layout_width="fill_parent"
 		android:orientation="vertical" android:stretchColumns="1"
 		android:paddingTop="20sp" android:paddingBottom="10dip"
@@ -64,6 +64,7 @@
 	</TableLayout>
 	<Button android:id="@+id/Button01"
 		android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:text="Delete this point"></Button>
+
 
 
 
