@@ -273,8 +273,13 @@ public class LocationService extends Service implements LocationListener
 
     private NetInfo getVicinity(Location location, String ssid)
     {
+
         NetInfo out = new NetInfo();
         out.vicinity = VICINITY_OUT;
+        if (location == null)
+        {
+            return out;
+        }
 
         Log.i("WIFI", "isInvicinity");
         Log.i("WIFI", "Location: "
