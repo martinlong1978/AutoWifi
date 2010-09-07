@@ -22,8 +22,9 @@
 		android:gravity="left" android:textStyle="bold" android:text="Status:"></TextView>
 	<LinearLayout android:id="@+id/LinearLayout02"
 		android:layout_width="fill_parent" android:layout_height="wrap_content">
-		<WebView android:id="@+id/WebView01" android:layout_width="wrap_content" android:layout_weight="1"
-			android:layout_height="wrap_content" android:background="#000"></WebView>
+		<WebView android:id="@+id/WebView01" android:layout_width="wrap_content"
+			android:layout_weight="1" android:layout_height="wrap_content"
+			android:background="#000"></WebView>
 		<Button android:text="Map" android:id="@+id/OpenMap"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
 	</LinearLayout>
@@ -32,12 +33,10 @@
 		android:gravity="left" android:textStyle="bold" android:text="Known Networks:"></TextView>
 	<ListView android:id="@+id/ListView01" android:layout_width="wrap_content"
 		android:layout_height="wrap_content"></ListView>
-
-
 	<TextView android:id="@+id/TextView03" android:layout_width="wrap_content"
 		android:layout_height="wrap_content" android:textSize="12sp"
 		android:paddingTop="15dip"
-		android:text="Please email me if you need support: support@longhome.co.uk. Click here to compose a new email."
+		android:text="If you have any problems, please click here to read the FAQ. If your question is still unanswered, then you can email me using the 'Support' option on the menu button."
 		android:textColor="#FFF"></TextView>
 
 

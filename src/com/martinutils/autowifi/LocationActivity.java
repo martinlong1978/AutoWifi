@@ -338,15 +338,11 @@ public class LocationActivity extends Activity implements
     @Override
     public void onClick(View v)
     {
-        try
-        {
-            sendEmail();
-        }
-        catch (IOException e)
-        {
-            Log.e("WIFI", e.getMessage(), e);
-            e.printStackTrace();
-        }
+        // sendEmail();
+        Intent intent = new Intent(Intent.ACTION_VIEW,
+                Uri.parse("http://www.rozel.net/faq.html"));
+
+        startActivity(intent);
     }
 
     private void sendEmail() throws IOException

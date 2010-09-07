@@ -46,8 +46,8 @@ public class LocationService extends Service implements LocationListener
 
         LocationManager service = getLocationService();
         service.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
-                0,
-                0,
+                120000,
+                100,
                 this);
 
         // If possible get last state
