@@ -90,13 +90,18 @@ public class PlotActivity extends MapActivity
         ovl = new WifiOverlay(getResources().getDrawable(R.drawable.icon), this);
         overlays.clear();
         overlays.add(ovl);
-        GeoPoint point = locationToPoint(myLocation);
-        RadiusItem overlayitem = new RadiusItem(99999,
-                point,
-                mapView,
-                myLocation.getAccuracy(),
-                Color.RED);
-        ovl.addOverlay(overlayitem);
+        GeoPoint point;
+        RadiusItem overlayitem;
+        if (myLocation != null)
+        {
+            point = locationToPoint(myLocation);
+            overlayitem = new RadiusItem(99999,
+                    point,
+                    mapView,
+                    myLocation.getAccuracy(),
+                    Color.RED);
+            ovl.addOverlay(overlayitem);
+        }
         SQLiteDatabase db = dbh.getReadableDatabase();
         Cursor cur = null;
         try
