@@ -20,20 +20,20 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.webkit.WebView;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.AdapterView.OnItemClickListener;
 
 import com.martinutils.autowifi.LocationService.LocalBinder;
 
@@ -289,9 +289,10 @@ public class LocationActivity extends Activity implements
     {
         Intent intent = new Intent(this, PlotActivity.class);
         intent.putExtra("ssid", networkName);
-        intent.putExtra("location", service.getLocation());
+        intent.putExtra("location", service.getLocation().loc);
         startActivity(intent);
     }
+
     MenuItem view;
     MenuItem delete;
     String   selection;
