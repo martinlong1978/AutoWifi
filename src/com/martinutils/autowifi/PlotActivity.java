@@ -112,13 +112,17 @@ public class PlotActivity extends MapActivity
             {
                 do
                 {
-                    Location loc = LocationService.stringToLocation(cur.getString(0));
-                    point = locationToPoint(loc);
-                    overlayitem = new RadiusItem(cur.getInt(1),
-                            point,
-                            mapView,
-                            loc.getAccuracy());
-                    ovl.addOverlay(overlayitem);
+                    ILocation loc = ILocation.asLocation(cur.getString(0), null);
+                    if (loc instanceof GPSLocation)
+                    {
+                        GPSLocation gpsLoc = (GPSLocation) loc;
+                        point = locationToPoint(gpsLoc.loc);
+                        overlayitem = new RadiusItem(cur.getInt(1),
+                                point,
+                                mapView,
+                                gpsLoc.loc.getAccuracy());
+                        ovl.addOverlay(overlayitem);
+                    }
                 } while (cur.moveToNext());
             }
             final MapController controller = mapView.getController();

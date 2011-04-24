@@ -42,7 +42,7 @@ public class LocationService extends ALocationService implements
         setWifiEnabled(wasInZone);
     }
 
-    public ILocation getLocation()
+    public GPSLocation getLocation()
     {
         Log.i("WIFI", "getLocation");
         return new GPSLocation(getLocationService().getLastKnownLocation(LocationManager.NETWORK_PROVIDER));
