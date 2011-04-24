@@ -25,8 +25,8 @@ public class LocationService extends Service implements LocationListener
     List<MyLocation>          locations = new ArrayList<MyLocation>();
 
     DBHelper                  helper;
-    Location                  lastKnown;
-    Location                  netLocation;
+    MyLocation                lastKnown;
+    MyLocation                netLocation;
 
     private SharedPreferences prefs;
     private WifiMode          mode;
@@ -83,38 +83,32 @@ public class LocationService extends Service implements LocationListener
     @Override
     public void onLocationChanged(Location location)
     {
-        Location previousLocation = lastKnown;
-        lastKnown = location;
-        boolean invicinity = isInvicinity();
-
-        Log.i("WIFI", "onLocationChanged invicinity: "
-                + invicinity
-                + " wasInZone: "
-                + wasInZone);
+        MyLocation previousLocation = lastKnown;
+        lastKnown = new MyLocation(location);
 
         final WifiManager wifiService = getWifiService();
         if (wifiService.isWifiEnabled())
         {
             final WifiInfo connectionInfo = wifiService.getConnectionInfo();
             final SupplicantState supplicantState = connectionInfo.getSupplicantState();
-            Log.i("WIFI", "Is Enabled, connection state: "
-                    + supplicantState.name());
+            Log.i("WIFI",
+                    "Is Enabled, connection state: " + supplicantState.name());
 
             // If wifi still connected, log new locations
             if (supplicantState == SupplicantState.COMPLETED
                     || supplicantState == SupplicantState.ASSOCIATED)
             {
                 if (netLocation != null
-                        && netLocation.getAccuracy() > lastKnown.getAccuracy())
+                        && netLocation.loc.getAccuracy() > lastKnown.loc.getAccuracy())
                 {
-                    Log.i("WIFI", "Logging a netLocation: " + netLocation);
-                    logLocation(connectionInfo.getSSID(), netLocation);
+                    netLocation.setSSID(connectionInfo.getSSID());
+                    logLocation(netLocation);
                     netLocation = null;
                 }
                 else
                 {
-                    Log.i("WIFI", "Logging a location: " + lastKnown);
-                    logLocation(connectionInfo.getSSID());
+                    lastKnown.setSSID(connectionInfo.getSSID());
+                    logLocation(lastKnown);
                 }
             }
 
@@ -122,6 +116,7 @@ public class LocationService extends Service implements LocationListener
             else if (supplicantState == SupplicantState.DISCONNECTED
                     || supplicantState == SupplicantState.SCANNING)
             {
+                boolean invicinity = isInvicinity();
                 // If moving out of zone, and scanning, disable.
                 if (!invicinity && wasInZone)
                 {
@@ -142,6 +137,7 @@ public class LocationService extends Service implements LocationListener
         }
         else
         {
+            boolean invicinity = isInvicinity();
             Log.i("WIFI", "Is Disabled");
             if (invicinity && !wasInZone)
             {
@@ -197,46 +193,40 @@ public class LocationService extends Service implements LocationListener
         super.onStart(intent, startId);
         lastKnown = getLocation();
         String connectedTo = intent.getStringExtra("connectedTo");
+        lastKnown.setSSID(connectedTo);
         Log.i("WIFI", "onStart: " + connectedTo);
         if (connectedTo != null)
         {
-            logLocation(connectedTo);
+            logLocation(lastKnown);
         }
     }
 
-    private void logLocation(String connectedTo)
-    {
-        if (lastKnown != null)
-        {
-            logLocation(connectedTo, lastKnown);
-        }
-    }
+    // private void logLocation(String connectedTo)
+    // {
+    // if (lastKnown != null)
+    // {
+    // logLocation(connectedTo, lastKnown);
+    // }
+    // }
 
-    private void logLocation(String ssid, final Location location)
+    private void logLocation(MyLocation location)
     {
-        Log.i("WIFI", "Connected to: "
-                + ssid
-                + " at: "
-                + location.getLatitude()
-                + ","
-                + location.getLongitude()
-                + " acc: "
-                + location.getAccuracy());
-        if (isInvicinity(location, ssid))
+        if (isInvicinity(location))
         {
             Log.i("WIFI", "Already logged");
             return;
         }
         if (location != null)
         {
-            locations.add(new MyLocation(ssid, location));
+            locations.add(location);
         }
         Log.i("WIFI", "Locations: " + locations.size());
         SQLiteDatabase db = helper.getWritableDatabase();
         try
         {
             db.execSQL("INSERT INTO location (ssid, point) VALUES (?,?)",
-                    new Object[] { ssid, locationToString(location) });
+                    new Object[] { location.ssid,
+                            locationToString(location.loc) });
         }
         finally
         {
@@ -247,19 +237,19 @@ public class LocationService extends Service implements LocationListener
 
     public boolean isInvicinity()
     {
-        return isInvicinity(lastKnown, null);
+        return isInvicinity(lastKnown);
     }
 
-    private static final int VICINITY_IN   = 2;
-    private static final int VICINITY_OUT  = 0;
-    private static final int VICINITY_NEAR = 1;
+    public static final int VICINITY_OUT  = 0;
+    public static final int VICINITY_NEAR = 1;
+    public static final int VICINITY_IN   = 2;
 
-    private boolean isInvicinity(Location location, String ssid)
+    private boolean isInvicinity(MyLocation location)
     {
-        final NetInfo info = getVicinity(location, ssid);
-        return (ssid == null)
-                ? info.vicinity > VICINITY_OUT
-                : info.vicinity > VICINITY_NEAR;
+        final NetInfo info = getVicinity(location);
+        return (location.hasSSID())
+                ? info.vicinity > VICINITY_NEAR
+                : info.vicinity > VICINITY_OUT;
     }
 
     public NetInfo getVicinity()
@@ -268,59 +258,27 @@ public class LocationService extends Service implements LocationListener
         {
             return new NetInfo();
         }
-        return getVicinity(lastKnown, null);
+        return getVicinity(lastKnown);
     }
 
-    private NetInfo getVicinity(Location location, String ssid)
+    private NetInfo getVicinity(MyLocation inLocation)
     {
 
         NetInfo out = new NetInfo();
         out.vicinity = VICINITY_OUT;
-        if (location == null)
+        if (inLocation == null)
         {
             return out;
         }
 
-        Log.i("WIFI", "isInvicinity");
-        Log.i("WIFI", "Location: "
-                + location.getLatitude()
-                + ","
-                + location.getLongitude()
-                + " acc: "
-                + location.getAccuracy());
         for (MyLocation myLocation : locations)
         {
-            Location wifiLocation = myLocation.loc;
-            float accIn = Math.max(wifiLocation.getAccuracy(),
-                    location.getAccuracy());
-            float accNear = wifiLocation.getAccuracy() + location.getAccuracy();
-            Log.i("WIFI", "Compare to: "
-                    + wifiLocation.getLatitude()
-                    + ","
-                    + wifiLocation.getLongitude()
-                    + " acc: "
-                    + wifiLocation.getAccuracy());
-            final float distanceTo = wifiLocation.distanceTo(location);
-            Log.i("WIFI", "distance: "
-                    + distanceTo
-                    + " accIn: "
-                    + accIn
-                    + " accNear: "
-                    + accNear);
-            if (distanceTo < accIn
-                    && (ssid == null || ssid.equals(myLocation.ssid)))
+            out.vicinity = inLocation.getVicinity(myLocation);
+            if (out.vicinity > VICINITY_OUT)
             {
-                out.vicinity = VICINITY_IN;
                 out.ssid = myLocation.ssid;
                 return out;
             }
-            if (distanceTo < accNear
-                    && (ssid == null || ssid.equals(myLocation.ssid)))
-            {
-                out.vicinity = VICINITY_NEAR;
-                out.ssid = myLocation.ssid;
-            }
-
         }
         return out;
     }
@@ -431,18 +389,6 @@ public class LocationService extends Service implements LocationListener
             }
         }
 
-    }
-
-    private class MyLocation
-    {
-        public MyLocation(String ssid, Location loc)
-        {
-            this.ssid = ssid;
-            this.loc = loc;
-        }
-
-        String   ssid;
-        Location loc;
     }
 
     public String getStatus()
